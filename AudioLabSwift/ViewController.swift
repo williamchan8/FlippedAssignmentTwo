@@ -40,9 +40,8 @@ class ViewController: UIViewController {
             numPointsInGraph: AUDIO_BUFFER_SIZE)
         
         // just start up the audio model here
-        audio.startMicrophoneProcessing(withFps: 10)
-        //audio.startProcesingAudioFileForPlayback()
-        audio.startProcessingSinewaveForPlayback(withFreq: 630.0)
+        //audio.startMicrophoneProcessing(withFps: 10)
+        audio.startProcesingAudioFileForPlayback()
         audio.play()
         
         // run the loop for updating the graph peridocially
@@ -50,6 +49,8 @@ class ViewController: UIViewController {
             selector: #selector(self.updateGraph),
             userInfo: nil,
             repeats: true)
+        
+        
        
     }
     

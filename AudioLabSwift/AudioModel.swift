@@ -15,7 +15,23 @@ class AudioModel {
     private var BUFFER_SIZE:Int
     var timeData:[Float]
     var fftData:[Float]
-    var fftZoom:[Float]
+    var fftZoom:[Float]{
+            get{
+                var tempData:[Float] = Array.init(repeating:0.0,count : 20)
+                
+                var i = 0
+                let windowSize = fftData.count / 20
+                
+                while i < 20{
+                    tempData[i] = fftData[i*windowSize...(i+1)*windowSize].max()!
+                    
+                    i+=1
+                }
+                
+                return tempData
+            
+        }
+    }
     
     var windowSize:Int
     
@@ -25,8 +41,6 @@ class AudioModel {
         // anything not lazily instatntiated should be allocated here
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
-        fftZoom = Array.init(repeating: 0.0, count: 20)
-        windowSize = BUFFER_SIZE/40
     }
     
     // public function for starting processing of microphone data
@@ -43,7 +57,12 @@ class AudioModel {
     // public function for playing from a file reader file
     func startProcesingAudioFileForPlayback(){
         self.audioManager?.outputBlock = self.handleSpeakerQueryWithAudioFile
-        self.fileReader?.play()
+        
+        Timer.scheduledTimer(timeInterval: 0.1, target: self,
+                            selector: #selector(self.runEveryIntervalNew),
+                            userInfo: nil,
+                            repeats: true)
+        
     }
     
     func startProcessingSinewaveForPlayback(withFreq:Float=330.0){
@@ -58,11 +77,11 @@ class AudioModel {
     // You must call this when you want the audio to start being handled by our model
     func play(){
         self.audioManager?.play()
-        self.audioManager?.outputBlock = self.handleSpeakerQueryWithAudioFile
     }
     
     func pause(){
-//        self.audioManager?.pause()
+        self.audioManager?.pause()
+        self.audioManager?.inputBlock = nil
         self.audioManager?.outputBlock = nil
     }
     
@@ -137,8 +156,17 @@ class AudioModel {
             fftHelper!.performForwardFFT(withData: &timeData,
                                          andCopydBMagnitudeToBuffer: &fftData)
             
-                        
-            vDSP_vswmax(fftData, windowSize,&fftZoom, 1, 20, vDSP_Length(windowSize))
+        }
+    }
+    @objc
+    private func runEveryIntervalNew(){
+        if outputBuffer != nil {
+            // copy data to swift array
+            self.outputBuffer!.fetchFreshData(&timeData, withNumSamples: Int64(BUFFER_SIZE))
+            
+            // now take FFT and display it
+            fftHelper!.performForwardFFT(withData: &timeData,
+                                         andCopydBMagnitudeToBuffer: &fftData)
             
         }
     }
