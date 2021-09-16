@@ -1,0 +1,8 @@
+1. The program would still work but the data displayed on the line would look incorrect. With the bigger buffer array, the ending elements would always be zero 
+which would skew the data since there will be data points that return a max of zero. In order to fix this problem, you could double the timeData which would make it
+the FFTData. 
+
+2. It would be better to pause the audioManager instead of deallocating because we are constantly going back and forth from the TableViewController to 
+the ViewController. By deallocating audioManager, it would increase overhead by needing to reinstantiate a new audioManager everytime someone pressed the back button
+and went back into that View Controller. 
+
