@@ -17,6 +17,8 @@ class AudioModel {
     var fftData:[Float]
     var fftZoom:[Float]
     
+    var windowSize:Int
+    
     // MARK: Public Methods
     init(buffer_size:Int) {
         BUFFER_SIZE = buffer_size
@@ -24,6 +26,7 @@ class AudioModel {
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
         fftZoom = Array.init(repeating: 0.0, count: 20)
+        windowSize = BUFFER_SIZE/40
     }
     
     // public function for starting processing of microphone data
@@ -134,6 +137,8 @@ class AudioModel {
             fftHelper!.performForwardFFT(withData: &timeData,
                                          andCopydBMagnitudeToBuffer: &fftData)
             
+                        
+            vDSP_vswmax(fftData, windowSize,&fftZoom, 1, 20, vDSP_Length(windowSize))
             
         }
     }
