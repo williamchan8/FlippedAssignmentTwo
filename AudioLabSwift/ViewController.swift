@@ -31,6 +31,10 @@ class ViewController: UIViewController {
                         shouldNormalize: true,
                         numPointsInGraph: AUDIO_BUFFER_SIZE/2)
         
+        graph?.addGraph(withName: "fft_new",
+                        shouldNormalize: true,
+                        numPointsInGraph: 20)
+        
         graph?.addGraph(withName: "time",
             shouldNormalize: false,
             numPointsInGraph: AUDIO_BUFFER_SIZE)
@@ -49,12 +53,23 @@ class ViewController: UIViewController {
        
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        
+        super.viewDidDisappear(animated)
+        audio.pause()
+    }
+    
     
     @objc
     func updateGraph(){
         self.graph?.updateGraph(
             data: self.audio.fftData,
             forKey: "fft"
+        )
+        
+        self.graph?.updateGraph(
+            data: self.audio.fftZoom,
+            forKey: "fft_new"
         )
         
         self.graph?.updateGraph(

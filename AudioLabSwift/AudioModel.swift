@@ -15,6 +15,7 @@ class AudioModel {
     private var BUFFER_SIZE:Int
     var timeData:[Float]
     var fftData:[Float]
+    var fftZoom:[Float]
     
     // MARK: Public Methods
     init(buffer_size:Int) {
@@ -22,6 +23,7 @@ class AudioModel {
         // anything not lazily instatntiated should be allocated here
         timeData = Array.init(repeating: 0.0, count: BUFFER_SIZE)
         fftData = Array.init(repeating: 0.0, count: BUFFER_SIZE/2)
+        fftZoom = Array.init(repeating: 0.0, count: 20)
     }
     
     // public function for starting processing of microphone data
@@ -53,6 +55,12 @@ class AudioModel {
     // You must call this when you want the audio to start being handled by our model
     func play(){
         self.audioManager?.play()
+        self.audioManager?.outputBlock = self.handleSpeakerQueryWithAudioFile
+    }
+    
+    func pause(){
+//        self.audioManager?.pause()
+        self.audioManager?.outputBlock = nil
     }
     
     // Here is an example function for getting the maximum frequency
